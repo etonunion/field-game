@@ -20,7 +20,7 @@ const SUPABASE_URL="https://tozetaxubfbhsjurhoun.supabase.co";
 const SUPABASE_KEY="sb_publishable_UY56vKyP2u9c0Hf9HJd9Tw_aNCNBIOy";
 const sbFetch=async(path,opts={})=>fetch(`${SUPABASE_URL}/rest/v1${path}`,{headers:{"apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`,"Content-Type":"application/json","Prefer":"resolution=merge-duplicates",...opts.headers},...opts});
 
-BL="#f5ede0",PLL="#fce8f4",WH="#fff",MU="#7a6a5a",OK="#16a34a",ER="#dc2626",OP="#2a5a8a";
+
 const lp=(a,b,t)=>a+(b-a)*t,cl=(v,a,b)=>Math.max(a,Math.min(b,v)),ez=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 const px=30,pr=270,pt=30,pb=430,mx=150,my=230,sl=40,sr=300,st=35,sb=465,sx=170,sy=250;
 const bs=(bg=BR,fg=WH)=>({background:bg,color:fg,border:"none",borderRadius:8,padding:"10px 22px",fontSize:14,fontWeight:500,cursor:"pointer",fontFamily:"sans-serif"});
