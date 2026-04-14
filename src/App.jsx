@@ -1,5 +1,25 @@
 import{useState,useEffect,useRef}from"react";
-const BR="#6b4c1e",PK="#c0388a",BL="#f5ede0",PLL="#fce8f4",WH="#fff",MU="#7a6a5a",OK="#16a34a",ER="#dc2626",OP="#2a5a8a";
+const SURL="https://tozetaxubfbhsjurhoun.supabase.co";
+const SKEY="sb_publishable_UY56vKyP2u9c0Hf9HJd9Tw_aNCNBIOy";
+const sh={"apikey":SKEY,"Authorization":`Bearer ${SKEY}`,"Content-Type":"application/json"};
+const saveProgress=async(name,sections,total)=>{
+  const pct=Math.round((sections/total)*100);
+  const now=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+  try{
+    await fetch(`${SURL}/rest/v1/progress`,{method:"POST",headers:{...sh,"Prefer":"resolution=merge-duplicates"},body:JSON.stringify({name,sections,pct,last_active:now})});
+  }catch(e){console.log(e);}
+};
+const loadProgress=async()=>{
+  try{
+    const r=await fetch(`${SURL}/rest/v1/progress?select=*&order=pct.desc`,{headers:sh});
+    return await r.json();
+  }catch{return[];}
+};
+const SUPABASE_URL="https://tozetaxubfbhsjurhoun.supabase.co";
+const SUPABASE_KEY="sb_publishable_UY56vKyP2u9c0Hf9HJd9Tw_aNCNBIOy";
+const sbFetch=async(path,opts={})=>fetch(`${SUPABASE_URL}/rest/v1${path}`,{headers:{"apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`,"Content-Type":"application/json","Prefer":"resolution=merge-duplicates",...opts.headers},...opts});
+
+BL="#f5ede0",PLL="#fce8f4",WH="#fff",MU="#7a6a5a",OK="#16a34a",ER="#dc2626",OP="#2a5a8a";
 const lp=(a,b,t)=>a+(b-a)*t,cl=(v,a,b)=>Math.max(a,Math.min(b,v)),ez=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 const px=30,pr=270,pt=30,pb=430,mx=150,my=230,sl=40,sr=300,st=35,sb=465,sx=170,sy=250;
 const bs=(bg=BR,fg=WH)=>({background:bg,color:fg,border:"none",borderRadius:8,padding:"10px 22px",fontSize:14,fontWeight:500,cursor:"pointer",fontFamily:"sans-serif"});
@@ -548,17 +568,7 @@ function FinalQuiz(){
 
 function AdminView({onClose}){
   const[users,setUsers]=useState(null);
-  useEffect(()=>{
-    (async()=>{
-      try{
-        const keys=await window.storage.list("fg_user:");
-        const all=await Promise.all(keys.keys.map(async k=>{
-          try{const r=await window.storage.get(k,true);return r?JSON.parse(r.value):null;}catch{return null;}
-        }));
-        setUsers(all.filter(Boolean).sort((a,b)=>b.pct-a.pct));
-      }catch{setUsers([]);}
-    })();
-  },[]);
+  useEffect(()=>{loadProgress().then(setUsers);},[]);
   return(
     <div style={{position:"fixed",inset:0,zIndex:100,background:"rgba(0,0,0,0.7)",display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem"}}>
       <div style={{background:WH,borderRadius:14,padding:"1.5rem",maxWidth:480,width:"100%",maxHeight:"80vh",overflowY:"auto"}}>
@@ -575,9 +585,9 @@ function AdminView({onClose}){
             </div>
             <div style={{flex:1}}>
               <div style={{fontWeight:500,fontSize:14,color:"#1a1a1a"}}>{u.name}</div>
-              <div style={{fontSize:12,color:MU}}>{u.sections} of {MODS.length} sections · last active {u.date}</div>
+              <div style={{fontSize:12,color:MU}}>{u.sections} of {MODS.length} sections · last active {u.last_active}</div>
               <div style={{marginTop:4,height:4,background:"#eee",borderRadius:99}}>
-                <div style={{height:4,background:u.pct===100?OK:PK,borderRadius:99,width:`${u.pct}%`,transition:"width 0.3s"}}/>
+                <div style={{height:4,background:u.pct===100?OK:PK,borderRadius:99,width:`${u.pct}%`}}/>
               </div>
             </div>
             <div style={{fontSize:14,fontWeight:500,color:u.pct===100?OK:PK}}>{u.pct}%</div>
@@ -599,22 +609,12 @@ export default function App(){
   const[showAdmin,setShowAdmin]=useState(false);
   const pct=Math.round((unlocked.size/MODS.length)*100);
 
-  const saveProgress=async(nm,unlockedSet)=>{
-    try{
-      const key=`fg_user:${nm.toLowerCase().replace(/\s+/g,"_")}`;
-      const sections=unlockedSet.size;
-      const p=Math.round((sections/MODS.length)*100);
-      const now=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-      await window.storage.set(key,JSON.stringify({name:nm,sections,pct:p,date:now}),true);
-    }catch{}
-  };
-
   const pass=()=>{
     const n=cur+1;
     const newUnlocked=new Set([...unlocked,n]);
     setUnlocked(newUnlocked);
     setGating(false);setSqz(false);setCur(n);
-    saveProgress(name,newUnlocked);
+    saveProgress(name,newUnlocked.size,MODS.length);
   };
   const goTo=i=>{if(!unlocked.has(i))return;setGating(false);setSqz(false);setCur(i);};
   const startG=()=>{if(MODS[cur].id==="sneaking")setSqz(true);else setGating(true);};
@@ -625,7 +625,7 @@ export default function App(){
     const nm=nin.trim();
     setName(nm);
     setScreen("basic");
-    saveProgress(nm,new Set([0]));
+    saveProgress(nm,1,MODS.length);
   };
 
   if(screen==="landing")return(
