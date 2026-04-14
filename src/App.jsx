@@ -2,6 +2,7 @@ import{useState,useEffect,useRef}from"react";
 const SURL="https://tozetaxubfbhsjurhoun.supabase.co";
 const SKEY="sb_publishable_UY56vKyP2u9c0Hf9HJd9Tw_aNCNBIOy";
 const sh={"apikey":SKEY,"Authorization":`Bearer ${SKEY}`,"Content-Type":"application/json"};
+const BR="#6b4c1e",PK="#c0388a",BL="#f5ede0",PLL="#fce8f4",WH="#fff",MU="#7a6a5a",OK="#16a34a",ER="#dc2626",OP="#2a5a8a";
 const saveProgress=async(name,sections,total)=>{
   const pct=Math.round((sections/total)*100);
   const now=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short"});
